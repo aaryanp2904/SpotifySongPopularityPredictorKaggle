@@ -26,4 +26,4 @@ def neural_net_predictions(curr_model, x_test, variance_mean, prediction_path):
 
     print("Saving scaled predictions to csv...")
     result.to_csv(prediction_path + "NeuralNetPredictions.csv", index=False)
-
+    

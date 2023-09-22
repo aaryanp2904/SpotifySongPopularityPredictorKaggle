@@ -5,7 +5,7 @@ from GenerateAverageModelPreds import average_predictions
 import math
 import pandas as pd
 
-currModel = 2
+currModel = 1
 
 
 def driver():
@@ -21,7 +21,7 @@ def driver():
 
     variance_mean = get_var_mean(curr_model_path)
 
-    prediction_path = f"../../Predictions/PreprocessingModel{currModel}"
+    prediction_path = f"../../Predictions/PreprocessingModel{currModel}/"
 
     neural_net_predictions(currModel, x_test, variance_mean, prediction_path)
     xgb_predictions(x_train, y_train, x_test, variance_mean, prediction_path)

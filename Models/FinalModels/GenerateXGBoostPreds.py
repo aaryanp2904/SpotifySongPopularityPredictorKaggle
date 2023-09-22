@@ -7,8 +7,10 @@ def xgb_predictions(x_train, y_train, x_test, variance_mean, prediction_path):
     print("Creating XGBoost model parameters...")
     dm_train = xgb.DMatrix(data=x_train, label=y_train)
 
-    params = {"objective": "reg:squarederror", "n_estimators": 50, "learning_rate": 0.215, "subsample": 0.1,
-              "booster": "gblinear", "max_leaves": 700}
+    #params = {"objective": "reg:squarederror", "n_estimators": 50, "learning_rate": 0.215, "subsample": 0.1,
+    #          "booster": "gblinear", "max_leaves": 700}
+
+    params = {"objective": "reg:squarederror", "booster": "gblinear", 'subsample': 0.5, 'n_estimators': 50, 'max_depth': 15, 'learning_rate': 0.05, 'colsample_bytree': 1.0000000000000004}
 
     ids = x_test["id"]
 

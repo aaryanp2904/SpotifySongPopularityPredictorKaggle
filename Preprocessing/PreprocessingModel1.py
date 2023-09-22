@@ -100,7 +100,7 @@ for _, row in X.iterrows():
         total += artistVals[artist]
 
     # Calculate average popularity of artists, but if the song has more artists then give it a slight boost
-    avgPopularitiesArtist.append((total / numArtists) * (1 + (numArtists - 1) / 100))
+    avgPopularitiesArtist.append((total / numArtists)) # * (1 + (numArtists - 1) / 100))
 
     # Get average popularity of the year
     avgPopularitiesYear.append(yearVals[row['year']])
@@ -139,7 +139,7 @@ for _, row in test.iterrows():
             total += avg
 
     # Calculate average popularity of artists, but if the song has more artists then give it a slight boost
-    avgPopularitiesArtistTest.append((total / numArtists) * (1 + (numArtists - 1) / 100))
+    avgPopularitiesArtistTest.append((total / numArtists) * (1 + (numArtists - 1) / 50))
 
     # Get average popularity of the year, as this is a test set this also may have years we haven't come across
     if row['year'] in yearVals.keys():
