@@ -1,46 +1,29 @@
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
-import keras
-from keras import layers
 from keras.models import load_model
-import math
 
 currModel = 2
 
-currPro = f"../../Datasets/Processed/FinalDatasets" \
-          f"/PreprocessingModel{currModel}/"
 
-predPath = "../../Predictions/"
+def neural_net_predictions(curr_model, x_test, variance_mean, prediction_path):
+    print("------------------------------------------------------------------\nLoading neural network...")
 
-test = pd.read_csv(currPro + "test.csv")
+    model = load_model(f"NeuralNetworkModelFiles/model{curr_model}.h5")
 
-model = load_model(f"NeuralNetworkModelFiles/model{currModel}.h5")
+    ids = x_test["id"]
 
-ids = test["id"]
+    x_test = x_test.drop(["id"], axis=1)
 
-varMean = {}
+    print("Generating predictions...")
+    predictions = model.predict(x_test)
 
-with open(currPro + "varMean.txt", "r") as f:
-    data = f.readline()
-    vals = data.split(", ")
-    varMean["std"] = math.sqrt(float(vals[0][1:-1]))
-    varMean["mean"] = float(vals[1][1:-1])
+    res = []
 
-test = test.drop(["id"], axis=1)
+    print("Scaling up predictions...")
+    for item in predictions:
+        res.append(min(100, max((item[0] * variance_mean["std"]) + variance_mean["mean"], 0)))
 
-preds = model.predict(test)
+    result = pd.DataFrame({"id": ids, "popularity": res})
 
-res = []
+    print("Saving scaled predictions to csv...")
+    result.to_csv(prediction_path + "NeuralNetPredictions.csv", index=False)
 
-for item in preds:
-    res.append(min(100, max((item[0] * varMean["std"]) + varMean["mean"], 0)))
-
-print(preds)
-
-result = pd.DataFrame({"id": ids, "popularity": res})
-
-if currModel == 1:
-    predAdd = "PreprocessingModel1/"
-else:
-    predAdd = "PreprocessingModel2/"
-
-result.to_csv(predPath + predAdd + "NeuralNetPredictions.csv", index=False)

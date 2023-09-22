@@ -2,50 +2,30 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
-import math
-
-currModel = 2
-
-currPro = f"../../Datasets/Processed/FinalDatasets" \
-          f"/PreprocessingModel{currModel}/"
-
-predPath = "../../Predictions/"
 
 
-X_train = pd.read_csv(currPro+ "X.csv")
-y_train = pd.read_csv(currPro+ "y.csv").values.ravel()
+def poly_lin_reg_predictions(x_train, y_train, x_test, variance_mean, prediction_path):
+    print("------------------------------------------------------------------")
+    print("Creating Polynomial Linear Regression pipeline...")
+    model = Pipeline([('polynom', PolynomialFeatures(degree=3)),
+                      ("linear", LinearRegression(fit_intercept=False))])
 
-X_test = pd.read_csv(currPro + "test.csv")
+    print("Fitting training data to PLR model...")
+    model.fit(x_train, y_train)
 
-model = Pipeline([('polynom', PolynomialFeatures(degree=3)),
-                  ("linear", LinearRegression(fit_intercept=False))])
-model.fit(X_train, y_train)
+    ids = x_test["id"]
+    x_test = x_test.drop(["id"], axis=1)
 
-varMean = {}
+    print("Generating predictions...")
+    predictions = model.predict(x_test)
 
-with open(currPro + "varMean.txt", "r") as f:
-    data = f.readline()
-    vals = data.split(", ")
-    varMean["std"] = math.sqrt(float(vals[0][1:-1]))
-    varMean["mean"] = float(vals[1][1:-1])
+    res = []
 
-ids = X_test["id"]
-X = X_test.drop(["id"], axis=1)
+    print("Scaling up predictions...")
+    for item in predictions:
+        res.append(min(100, max((item * variance_mean["std"]) + variance_mean["mean"], 0)))
 
-preds = model.predict(X)
+    result = pd.DataFrame({"id": ids, "popularity": res})
 
-res = []
-
-for item in preds:
-    res.append(min(100, max((item * varMean["std"]) + varMean["mean"], 0)))
-
-print(preds)
-
-result = pd.DataFrame({"id": ids, "popularity": res})
-
-if currModel == 1:
-    predAdd = "PreprocessingModel1/"
-else:
-    predAdd = "PreprocessingModel2/"
-
-result.to_csv(predPath + predAdd + "PolyLinRegPredictions.csv", index=False)
+    print("Saving scaled predictions to csv...")
+    result.to_csv(prediction_path + "PolyLinRegPredictions.csv", index=False)

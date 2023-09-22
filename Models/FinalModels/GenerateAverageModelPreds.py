@@ -1,15 +1,19 @@
 import pandas as pd
 
-currModel = 2
 
-predPath = f"../../Predictions/PreprocessingModel{currModel}/"
+def average_predictions(prediction_path):
+    print("------------------------------------------------------------------")
+    print("Reading predictions from models...")
+    predictions_nn = pd.read_csv(prediction_path + "NeuralNetPredictions.csv")
+    predictions_plr = pd.read_csv(prediction_path + "PolyLinRegPredictions.csv")
 
-predsNN = pd.read_csv(predPath + "NeuralNetPredictions.csv")
-predsPLR = pd.read_csv(predPath + "PolyLinRegPredictions.csv")
-predsXGB = pd.read_csv(predPath + "XGBoostPredictions.csv")
+    # The XGB predictions tend to worsen performance so we choose not to include them
+    # predsXGB = pd.read_csv(prediction_path + "XGBoostPredictions.csv")
 
-preds = pd.DataFrame({"id": predsNN["id"], "neural_net": predsNN["popularity"], "plr": predsPLR["popularity"]})
+    predictions = pd.DataFrame({"id": predictions_nn["id"], "neural_net": predictions_nn["popularity"], "plr": predictions_plr["popularity"]})
 
-preds["popularity"] = preds[["neural_net", "plr"]].mean(axis = 1)
+    print("Calculating mean of chosen predictions...")
+    predictions["popularity"] = predictions[["neural_net", "plr"]].mean(axis=1)
 
-preds[["id", "popularity"]].to_csv(predPath + "AverageModelPredictions.csv", index=False)
+    print("Saving mean predictions to csv...")
+    predictions[["id", "popularity"]].to_csv(prediction_path + "AverageModelPredictions.csv", index=False)
